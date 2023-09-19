@@ -12,4 +12,4 @@ RUN python -m pip install --upgrade pip pytest cmake scikit-build setuptools fas
 RUN CMAKE_ARGS="-DLLAMA_BLAS=ON -DLLAMA_BLAS_VENDOR=OpenBLAS" pip install llama_cpp_python --verbose
 
 # Run the server
-CMD python3 -m llama_cpp.server
+CMD python3 -m llama_cpp.server --host 0.0.0.0 --port 8000 --n_ctx 4096

@@ -1,0 +1,1 @@
+docker run -p 8083:8000 --cap-add SYS_RESOURCE -e USE_MLOCK=0 -e MODEL=/var/model/llama-2-13b-chat.gguf.q4_1.bin -v /home/s02009086/weight/models:/var/model -t llamacpp-llama2

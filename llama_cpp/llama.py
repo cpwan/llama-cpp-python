@@ -887,6 +887,7 @@ class Llama:
         completion_tokens: List[int] = []
         # Add blank space to start of prompt to match OG llama tokenizer
         prompt_tokens: List[int] = self.tokenize(prompt.encode("utf-8")) if prompt != "" else [self.token_bos()]
+        print(prompt)
         text: bytes = b""
         returned_tokens: int = 0
         stop = (
@@ -1560,12 +1561,31 @@ class Llama:
         stop = (
             stop if isinstance(stop, list) else [stop] if isinstance(stop, str) else []
         )
-        chat_history = "".join(
-            f'### {"Human" if message["role"] == "user" else "Assistant"}:{message["content"]}'
-            for message in messages
-        )
-        PROMPT = chat_history + "### Assistant:"
-        PROMPT_STOP = ["### Assistant:", "### Human:"]
+
+        # assistant, user, assistant
+        # system, user, assistant
+        # chat_history = "".join(
+        #     f'### {"Human" if message["role"] == "user" else "Assistant"}:{message["content"]}'
+        #     for message in messages
+        # )
+        # PROMPT = chat_history + "### Assistant:"
+
+
+        system_prompt_template = "[INST] <<SYS>>\n{INSTRUCTION}\n<</SYS>>\n"
+        user_prompt_template = "{MESSAGE}\n[/INST]\n"
+        assistant_prompt_template = "{MESSAGE}\n[INST]\n"
+
+        chat_history = []
+        for message in messages:
+            if message["role"] == 'system':
+                chat_history.append(system_prompt_template.format(INSTRUCTION=message["content"]))
+            elif message["role"] == 'user':
+                chat_history.append(user_prompt_template.format(MESSAGE=message["content"]))
+            elif message["role"] == 'assistant':
+                chat_history.append(assistant_prompt_template.format(MESSAGE=message["content"]))
+        PROMPT = "".join(chat_history)
+
+        PROMPT_STOP = ["[INST]"]
         completion_or_chunks = self(
             prompt=PROMPT,
             stop=PROMPT_STOP + stop,
